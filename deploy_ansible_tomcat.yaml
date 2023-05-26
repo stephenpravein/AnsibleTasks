@@ -13,7 +13,7 @@
         name: python-pip
         state: present
 
-    - name: Install Ansible
+    - name: Install Ansible 
       pip:
         name: ansible
         state: present
