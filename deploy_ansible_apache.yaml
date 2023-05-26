@@ -1,0 +1,64 @@
+---
+- name: Install Ansible and Deploy Tomcat
+  hosts: hostserver
+  become: yes
+  tasks:
+    - name: Install EPEL repository
+      yum:
+        name: epel-release
+        state: present
+
+    - name: Install Python PIP package
+      yum:
+        name: python-pip
+        state: present
+
+    - name: Install Ansible
+      pip:
+        name: ansible
+        state: present
+
+    - name: Update the package cache
+      yum:
+        name: '*'
+        state: latest
+        exclude: kernel*
+
+    - name: Install Java JDK
+      yum:
+        name: java-1.8.0-openjdk-devel
+        state: present
+
+    - name: Download and extract Tomcat
+      get_url:
+        url: "https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.75/bin/apache-tomcat-9.0.75.tar.gz"
+        dest: /tmp/apache-tomcat-9.0.75.tar.gz
+
+    - name: Extract Tomcat archive
+      unarchive:
+        src: /tmp/apache-tomcat-9.0.75.tar.gz
+        dest: /opt/
+        remote_src: yes
+
+    - name: Set Tomcat environment variables
+      lineinfile:
+        path: /etc/profile.d/tomcat.sh
+        line: |
+          export CATALINA_HOME=/opt/apache-tomcat-9.0.75
+          export PATH=$PATH:$CATALINA_HOME/bin
+        state: present
+        create: yes
+
+    - name: Set Tomcat permissions
+      file:
+        path: /opt/apache-tomcat-9.0.75/bin/
+        recurse: yes
+        mode: 0755
+        state: directory
+
+    - name: Start Tomcat service
+      shell: /opt/apache-tomcat-9.0.75/bin/startup.sh
+      args:
+        chdir: /opt/apache-tomcat-9.0.75/bin/
+      async: 0
+      poll: 0
