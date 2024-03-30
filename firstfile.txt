@@ -1,0 +1,2 @@
+This is succesful after one houyr work on adding remote URL
+done with the help of stack overflow by generating PAT and pushing it to remote
